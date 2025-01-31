@@ -98,8 +98,21 @@ chat_container = st.container()
 with chat_container:
     for message in st.session_state.message_log:
         with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+            if "<think>" in message["content"] and "</think>" in message["content"]:
+                # Extract the "thinking" content
+                start_idx = message["content"].find("<think>") + len("<think>")
+                end_idx = message["content"].find("</think>")
+                think_content = message["content"][start_idx:end_idx].strip()
+                actual_response = message["content"][end_idx + len("</think>"):].strip()
 
+                # Add expander for AI thought process
+                with st.expander("🤔 AI Thought Process"):
+                    st.markdown(think_content)
+
+                # Display the actual AI response
+                st.markdown(actual_response)
+            else:
+                st.markdown(message["content"])
 # Chat input and processing
 user_query = st.chat_input("Type your coding question here...")
 
